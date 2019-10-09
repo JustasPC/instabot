@@ -1,0 +1,48 @@
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait as wait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.proxy import Proxy, ProxyType
+import time
+import pyperclip
+
+
+PROXY = "194.5.157.110:3128" # IP:PORT or HOST:PORT
+
+image = 'https://www.instagram.com/p/B2RX08jIFCi/'
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument('--proxy-server=http://%s' % PROXY)
+browser = webdriver.Chrome(options=chrome_options)
+
+login_url = "https://www.instagram.com/accounts/login/?source=auth_switcher"
+
+
+def fun_login(uID,pswd):
+    global login
+    browser.get(login_url)
+    try:
+        element = wait(browser, 15).until(EC.visibility_of_element_located((By.TAG_NAME, 'input')))
+        print('Main page loaded..')
+    except:
+        ('Main page not loaded... ', uID, ' will be skipped')
+        return False
+    inputs = browser.find_elements_by_tag_name('input')
+    print(len(inputs))
+    for i in inputs:
+        fun_clean_input(i)
+    inputs[0].send_keys(uID)
+    inputs[1].send_keys(pswd)
+    inputs = browser.find_elements_by_tag_name('button')
+    for i in range(len(inputs)):
+        if inputs[i].text=="Log In":
+            print('clik ', i)
+    return True
+
+
+def fun_clean_input(element):
+    element.click()
+    element.send_keys(Keys.END)
+    element.send_keys(Keys.CONTROL, 'a')
+    element.send_keys(Keys.DELETE)
