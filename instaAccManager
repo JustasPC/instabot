@@ -7,20 +7,64 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 import time
 import pyperclip
+import requests
+import bs4
 
 
-PROXY = "194.5.157.110:3128" # IP:PORT or HOST:PORT
+proxyDict = { 
+              "http"  : '', 
+              "https" : '',  
+              "ftp"   : ''
+            }
+
+def fun_get_proxy_list():
+    proxy_list = []
+    res = requests.get('https://free-proxy-list.net/')
+    elems = bs4.BeautifulSoup(res.text,'html.parser').select('tbody > tr')
+    for i in range(300):
+        tmp = elems[i].select('td')
+        proxy_list.append(((str(tmp[0])+':'+str(tmp[1])).replace('<td>','')).replace('</td>',''))
+    return proxy_list
+
 
 image = 'https://www.instagram.com/p/B2RX08jIFCi/'
-chrome_options = webdriver.ChromeOptions()
-chrome_options.add_argument('--proxy-server=http://%s' % PROXY)
-browser = webdriver.Chrome(options=chrome_options)
-
 login_url = "https://www.instagram.com/accounts/login/?source=auth_switcher"
 
 
-def fun_login(uID,pswd):
-    global login
+def fun_browser(PROXY):
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--proxy-server=http://%s' % PROXY)
+    browser = webdriver.Chrome(options=chrome_options)
+    return browser
+
+
+def fun_check_browser(browser):
+    try:
+        browser.get("https://www.instagram.com/accounts/login/?source=auth_switcher")
+        element = wait(browser, 10).until(EC.presence_of_element_located((By.ID, 'fb-root')))
+        print('Welcome to instagram')
+        return False
+    except:
+        print('Prox not working for instagram: ')
+        browser.quit()
+        return True
+
+
+def fun_login(proxy_list,proxy_numb):
+    condition = True
+    while condition:
+        if proxy_numb<=len(proxy_list):
+            browser = fun_browser(proxy_list[proxy_numb])
+            condition = fun_check_browser(browser)
+        else:
+            proxy_list = fun_get_proxy_list()
+            proxy_numb = 0
+    return browser, proxy_numb, proxy_list
+
+
+
+def fun_loginas():
+    global login_url 
     browser.get(login_url)
     try:
         element = wait(browser, 15).until(EC.visibility_of_element_located((By.TAG_NAME, 'input')))
@@ -32,13 +76,25 @@ def fun_login(uID,pswd):
     print(len(inputs))
     for i in inputs:
         fun_clean_input(i)
-    inputs[0].send_keys(uID)
-    inputs[1].send_keys(pswd)
+    inputs[0].send_keys('uig')
+    inputs[1].send_keys('dong')
     inputs = browser.find_elements_by_tag_name('button')
     for i in range(len(inputs)):
         if inputs[i].text=="Log In":
             print('clik ', i)
     return True
+
+def fun_read_data():
+    condition = True
+    while condition:
+        chat = input('Select accounts and jobs from Excel and hit Enter')
+        if '\r\n' in pyperclip.paste():
+             rows = pyperclip.paste().split('\r\n')[:-1]
+             for i in range(len(rows)):
+                 rows[i]=rows[i].split('\t')
+             condition=False
+    print('Done')
+    return rows
 
 
 def fun_clean_input(element):
@@ -46,3 +102,35 @@ def fun_clean_input(element):
     element.send_keys(Keys.END)
     element.send_keys(Keys.CONTROL, 'a')
     element.send_keys(Keys.DELETE)
+
+
+proxy_list=fun_get_proxy_list()
+if len(proxy_list)>10:
+    main_worker(proxy_list)
+else:
+    print('Check internet and try again')
+
+
+def main_worker(proxy_list):
+    previous_acc = 'old'
+    proxy_numb = 0
+    rows=fun_read_data()
+    rows_hostory = []
+    print('Working with ',len(rows),' Instagram acc total')
+    for row in rows:
+        if (len(row[0])>4) and ('@' in row[0]) and ('.' in row[0]):
+            print('User: ',row[0])
+            if previous_acc!=row[0]:
+                try:
+                    browser.quit()
+                except:
+                    print('Opening new browser')
+                browser, proxy_numb, proxy_list = fun_browser(proxy_list,proxy_numb)
+                proxy_numb = proxy_numb+1
+            else:
+                print('Working with same browser as previous')
+                
+        else:
+            print('Invalid user',row)
+
+            
