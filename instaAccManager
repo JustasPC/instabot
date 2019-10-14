@@ -76,16 +76,20 @@ def fun_loginas(browser,row):
         ('Main page not loaded... ', uID, ' will be skipped')
         return False
     inputs = browser.find_elements_by_tag_name('input')
-    print(len(inputs))
     for i in inputs:
         fun_clean_input(i)
     inputs[0].send_keys(row[0])
     inputs[1].send_keys(row[1])
-    inputs = browser.find_elements_by_tag_name('button')
-    for i in range(len(inputs)):
-        if inputs[i].text=="Log In":
-            print('clik ', i)
-    element = wait(browser, 15).until(EC.url_changes('https://www.instagram.com/'))
+    login_condition = True
+    while login_condition:
+        inputs = browser.find_elements_by_tag_name('button')
+        for i in range(len(inputs)):
+            if inputs[i].text=="Log In":
+                print('clik ', i)
+            if wait(browser, 15).until(EC.url_changes('https://www.instagram.com/')):
+                login_condition = False
+            else:
+                tmp = input('Failed to login just enter correct credentials. Write y here and hit enter when done: ')
     return True
 
 
@@ -140,7 +144,7 @@ def main_worker(proxy_list):
             fun_do_work(browser,row)   
         else:
             print('Invalid user',row)
-    browser.quit()
+    #browser.quit()
 
 
 proxy_list=fun_get_proxy_list()
