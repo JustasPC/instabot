@@ -50,7 +50,7 @@ def fun_check_browser(browser):
         return True
 
 
-def fun_login(proxy_list,proxy_numb):
+def fun_browser_login(proxy_list,proxy_numb):
     condition = True
     while condition:
         if proxy_numb<=len(proxy_list):
@@ -63,12 +63,15 @@ def fun_login(proxy_list,proxy_numb):
 
 
 
-def fun_loginas():
+def fun_loginas(browser,row):
     global login_url 
     browser.get(login_url)
+    print('Bandoma pasiekti: ',row[2],' ',row[3])
+    if browser.current_url!=login_url:
+        browser.get(login_url)
     try:
         element = wait(browser, 15).until(EC.visibility_of_element_located((By.TAG_NAME, 'input')))
-        print('Main page loaded..')
+        print('Main login page loaded..')
     except:
         ('Main page not loaded... ', uID, ' will be skipped')
         return False
@@ -76,13 +79,24 @@ def fun_loginas():
     print(len(inputs))
     for i in inputs:
         fun_clean_input(i)
-    inputs[0].send_keys('uig')
-    inputs[1].send_keys('dong')
+    inputs[0].send_keys(row[0])
+    inputs[1].send_keys(row[1])
     inputs = browser.find_elements_by_tag_name('button')
     for i in range(len(inputs)):
         if inputs[i].text=="Log In":
             print('clik ', i)
+    element = wait(browser, 15).until(EC.url_changes('https://www.instagram.com/'))
     return True
+
+
+def fun_do_work(browser,row):
+    global login_url 
+    browser.get(login_url)
+    print('Bandoma pasiekti: ',row[2],' ',row[3])
+    if browser.current_url!=login_url:
+        browser.get(login_url)
+
+
 
 def fun_read_data():
     condition = True
@@ -104,13 +118,6 @@ def fun_clean_input(element):
     element.send_keys(Keys.DELETE)
 
 
-proxy_list=fun_get_proxy_list()
-if len(proxy_list)>10:
-    main_worker(proxy_list)
-else:
-    print('Check internet and try again')
-
-
 def main_worker(proxy_list):
     previous_acc = 'old'
     proxy_numb = 0
@@ -125,12 +132,22 @@ def main_worker(proxy_list):
                     browser.quit()
                 except:
                     print('Opening new browser')
-                browser, proxy_numb, proxy_list = fun_browser(proxy_list,proxy_numb)
+                browser, proxy_numb, proxy_list = fun_browser_login(proxy_list,proxy_numb)
                 proxy_numb = proxy_numb+1
+                fun_loginas(browser,row)
             else:
                 print('Working with same browser as previous')
-                
+            fun_do_work(browser,row)   
         else:
             print('Invalid user',row)
+    browser.quit()
 
-            
+
+proxy_list=fun_get_proxy_list()
+if len(proxy_list)>10:
+    main_worker(proxy_list)
+else:
+    print('Check internet and try again')
+
+
+
