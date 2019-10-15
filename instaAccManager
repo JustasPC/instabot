@@ -91,31 +91,18 @@ def fun_loginas(browser,row):
         for i in range(len(inputs)):
             if inputs[i].text=="Log In":
                 inputs[i].click()
-                if wait(browser, 30).until(EC.url_to_be('https://www.instagram.com/')):
-                    print('Acc ',' prisijunge')                
-                    login_condition = False
-                else:
-                    while 
-                    tmp = input('Failed to login just enter correct credentials. Write y here and hit enter when done: ')
+                while login_condition:
+                    try:
+                        wait(browser, 30).until(EC.url_to_be('https://www.instagram.com/'))
+                        print('Acc ',' prisijunge')                
+                        login_condition = False
+                    except:
+                        tmp = input('Failed to login just enter correct credentials and Login. Write y here and hit enter when done: ')
                 break
+    browser.get('https://www.instagram.com/p/B2Sl6NBIC2P/')
     return True
 
-def test():
-    login_condition = True
-    while login_condition:
-        print('While')
-        inputs = browser.find_elements_by_tag_name('button')
-        for i in range(len(inputs)):
-            if inputs[i].text=="Log In":
-                inputs[i].click()
-                if wait(browser, 30).until(EC.url_to_be('https://www.instagram.com/')):
-                    print('Acc ',' prisijunge')                
-                    login_condition = False
-                else:
-                    tmp = input('Failed to login just enter correct credentials. Write y here and hit enter when done: ')
-                break
-
-        
+       
 
 def fun_do_work(browser,row):
     global login_url 
