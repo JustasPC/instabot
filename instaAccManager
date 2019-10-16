@@ -105,11 +105,9 @@ def fun_loginas(browser,row):
        
 
 def fun_do_work(browser,row):
-    global login_url 
-    browser.get(login_url)
     print('Bandoma pasiekti: ',row[2],' ',row[3])
-    if browser.current_url!=login_url:
-        browser.get(login_url)
+    if browser.current_url!=row[3]:
+        browser.get(row[3])
 
 
 
