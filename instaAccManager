@@ -99,7 +99,6 @@ def fun_loginas(browser,row):
                     except:
                         tmp = input('Failed to login just enter correct credentials and Login. Write y here and hit enter when done: ')
                 break
-    browser.get('https://www.instagram.com/p/B2Sl6NBIC2P/')
     return True
 
        
@@ -108,6 +107,13 @@ def fun_do_work(browser,row):
     print('Bandoma pasiekti: ',row[2],' ',row[3])
     if browser.current_url!=row[3]:
         browser.get(row[3])
+    wait(browser, 30).until(EC.url_to_be('https://www.instagram.com/'))
+    if 'like' in str(row[2]).lower() or 'laikas' in str(row[2]).lower():
+        print('likinsim')
+    if 'fallow' in str(row[2]).lower() or 'sekti' in str(row[2]).lower():
+        print('seksim')
+
+    
 
 
 
@@ -153,6 +159,7 @@ def main_worker(proxy_list):
             fun_do_work(browser,row)   
         else:
             print('Invalid user',row)
+    print('All jobs done')
     #browser.quit()
 
 
