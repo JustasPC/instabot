@@ -132,19 +132,42 @@ def fun_do_work(browser,row):
     
 
 
-def test():
-    global browser
-    span = browser.find_elements_by_tag_name('span')
-    like_cond=True
-    while like_cond:
-        for i in range(len(span)):
-            if span[i].get_attribute('aria-label') == 'Like':
-                span[i].click()
-                like_cond=False
-            break
-    print('Liked')
-    
 
+def fun_logout(user):
+    try:
+        tp = user.split('@')
+        link = 'https://www.instagram.com/'+str(tp[0])
+        print(tp[0])
+        print(link)
+        browser.get(link)
+        el = wait(browser, 15).until(EC.url_matches('https://www.instagram.com/heroofatea'))
+        el = wait(browser, 15).until(EC.element_to_be_clickable())
+        el = browser.find_elements_by_tag_name('span')
+        for i in range(len(spanai)):
+            if spanai[i].get_attribute('aria-label')=='Options':
+                spanai[i].click()
+    except:
+        print('GG')
+
+
+def fun_logout(user):
+    tp = user.split('@')
+    link = 'https://www.instagram.com/'+str(tp[0])
+    print(tp[0])
+    print(link)
+    browser.get(link)
+    el = wait(browser, 15).until(EC.url_matches('https://www.instagram.com/heroofatea'))
+    el = browser.find_elements_by_tag_name('span')
+    for i in range(len(el)):
+        if el[i].get_attribute('aria-label')=='Options':
+            el[i].click()
+    time.sleep(1)
+    el = browser.find_elements_by_tag_name('button')
+    for i in range(len(el)):
+        if el[i].text=='Log Out':
+            el[i].click()
+    time.sleep(1)
+    print('Loged out ', user)
 
 
 def fun_read_data():
@@ -181,6 +204,8 @@ def main_worker(proxy_list):
             print('User: ',row[0])
             if previous_acc!=row[0]:
                 try:
+                    if previous_acc!='old':
+                        fun_logout(previous_acc)
                     browser.quit()
                 except:
                     print('Opening new browser')
